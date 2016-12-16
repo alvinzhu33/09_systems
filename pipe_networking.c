@@ -5,24 +5,25 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-int client_handshake(int *dest){
-  char pipeName[10];
-  sprintf(pipeName, "%d", getpid());
-  mkfifo(pipeName, 0644);
-  
-  int fd = open(pipeName, O_RDONLY);
+int server_handshake(int *dest){
 
-  close(fd);
-  return fd;
+  mkfifo("from", 0644);
+
+  int fd = open("from", O_RDONLY);
+  int fd2 = open("to", O_WRONLY);
+  dest = fd;
+
+  return fd2;
 }
 
-int server_handshake(int *dest){
-  char pipeName[10];
-  sprintf(pipeName, "%d", getpid());
+int client_handshake(int *dest){
+  char *pipeName = "to";
+  //sprintf(pipeName, "%d", getpid());
   mkfifo(pipeName, 0644);
-
-  int fd = open(pipeName, O_WRONLY);
   
-  close(fd);
-  return fd;
+  int fd = open(pipeName, O_WRONLY);
+  int fd2 = open("from",O_RDONLY);
+  dest = fd;
+
+  return fd2;
 }
