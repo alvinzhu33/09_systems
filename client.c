@@ -2,8 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "pipe_networking.h"
+
+static void sighandler(int signo){
+  if(signo == SIGINT){
+    exit(0);
+  }
+}
 
 int main() {
 
@@ -17,6 +24,8 @@ int main() {
     fgets( buffer, sizeof(buffer), stdin );
     char *p = strchr(buffer, '\n');
     *p = 0;
+
+    signal(SIGINT, sighandler);
 
     write( to_server, buffer, sizeof(buffer) );
     read( from_server, buffer, sizeof(buffer) );
