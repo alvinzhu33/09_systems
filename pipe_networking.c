@@ -13,11 +13,10 @@ int server_handshake(int *dest){
   //1
   mkfifo("from", 0644);
 
-  printf("Waiting for message\n");
+  printf("Waiting...\n");
   int getPrivate = open("from",O_RDONLY);
 
   //2 waits for private fifo
-  printf("Waiting\n");
   char buffer[256];
   read(getPrivate,buffer,sizeof(buffer));
   
@@ -26,12 +25,14 @@ int server_handshake(int *dest){
   
   //7 connect to client fifo, send an init message
   int sendMessage = open(buffer,O_WRONLY);
-  char *initMsg = "Hello there\n";
-  write(sendMessage,initMsg,sizeof(initMsg));
   
+  char *initMsg = "Hello client!\n";
+  write(sendMessage,initMsg,15);
   
-  *dest = sendMessage;
-  return getPrivate;
+  //printf("buffer: %s\n",buffer);
+  
+  *dest = getPrivate;    //sends "from" to be read from and processed
+  return sendMessage;    //sends pipeName to be written To (the processed message)
   
 }
 
@@ -42,27 +43,30 @@ int client_handshake(int *dest){
   mkfifo(pipeName, 0644);
 
   //4 connects to server and sends private fifo name
+  
   int sendPrivate = open("from",O_WRONLY);
+  
+  //printf("pipename: %s\n",pipeName);
+  
   write(sendPrivate,pipeName,sizeof(pipeName));
 
   //5 waits for message
-  int getStartMessage = open(pipeName, O_RDONLY);
+  int getMessage = open(pipeName, O_RDONLY);
   
   //8 gets the server init message, remove private fifo
+  char buffer[256];
+  read(getMessage,buffer,sizeof(buffer));
+  printf("Received: %s\n",buffer);
   remove(pipeName);
 
+
+  //Why does this mess it up?!!
   //9 send message to server
-  char *toSend = "Hello back";
-  write(sendPrivate,toSend,sizeof(toSend));
+  //char *toSend = "Hello server!\n";
+  //write(sendPrivate,toSend,15);
   
-  //to_server is where the message is, for the server to read
-  //WR_ONLY
 
-  //from_server is the processed message, where the server wrote to
-  //RD_ONLY
-  //
-
-  *dest = getStartMessage;
-  return sendPrivate;
+  *dest = sendPrivate;        //sends "from" to be written to
+  return getMessage;    //sends pipeName to be read from (the processed message)
   
 }
