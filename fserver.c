@@ -12,10 +12,10 @@ int main() {
 
   int to_client, from_client;
   char buffer[HANDSHAKE_BUFFER_SIZE];
-    
+
   while (1) {
 
-    from_client = server_handshake1( buffer );    
+    from_client = server_handshake1( buffer );
 
     int f = fork();
     if ( f == 0 ) {
@@ -35,11 +35,11 @@ void sub_server( int from_client, int to_client ) {
   char buffer[MESSAGE_BUFFER_SIZE];
   while (read( from_client, buffer, sizeof(buffer) )) {
 
-    printf("[SERVER %d] received: %s\n", getpid(), buffer );
+    printf("[SERVER %d] Received: %s\n", getpid(), buffer );
     process( buffer );
-    write( to_client, buffer, sizeof(buffer));    
+    write( to_client, buffer, sizeof(buffer));
   }
-  
+
 }
 void process( char * s ) {
 

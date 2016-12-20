@@ -37,7 +37,7 @@ int server_handshake(int *dest){
   read(*dest,buffer,sizeof(buffer));
   printf("[SERVER] Received: %s\n",buffer);
 
-  printf("[SERVER] Handshake Complete!\n");
+  //printf("[SERVER] Handshake Complete!\n");
   return sendMessage;    //sends pipeName to be written To (the processed message)
 }
 
@@ -71,6 +71,32 @@ int client_handshake(int *dest){
   char initMsg[] = "Hello server!\n";
   write(*dest, initMsg, sizeof(initMsg));
 
-  printf("[CLIENT] Handshake Complete!\n");
+  //printf("[CLIENT] Handshake Complete!\n");
   return getMessage;    //sends pipeName to be read from (the processed message)
+}
+
+int server_handshake1 (char *buffer) {
+	mkfifo ("from", 0644);
+	printf ("[SERVER] Making...\n");
+
+  int from_client = open ("from", O_RDONLY);
+	printf ("[SERVER] Connecting...\n");
+
+  read (from_client, buffer, MESSAGE_BUFFER_SIZE);
+	printf ("[SERVER] Pipe received: %s\n",buffer);
+
+  remove ("from");
+	return from_client;
+}
+
+int server_handshake2 (char *buffer, int from_client) {
+	int to_client = open(buffer, O_WRONLY);
+  strncpy (buffer, "Hello client!", MESSAGE_BUFFER_SIZE);
+	write(to_client,buffer,MESSAGE_BUFFER_SIZE);
+
+  read(from_client,buffer,MESSAGE_BUFFER_SIZE);
+	printf("[SERVER %d] Received: %s\n", getpid(), buffer);	return to_client;
+
+  //printf("[SERVER] Handshake Complete!\n");
+  return to_client;
 }
