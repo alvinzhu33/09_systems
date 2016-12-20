@@ -8,22 +8,22 @@
 #define MESSAGE_BUFFER_SIZE 512
 #define HANDSHAKE_BUFFER_SIZE 100
 
-//The pipe has the name of the other end in it
-
 int server_handshake(int *dest){
   //1 Make FIFO
   //printf("1\n");
+  printf("[SERVER] Making...\n");
   mkfifo("from", 0644);
 
   //2 waits for private fifo
   //printf("2\n");
-  printf("Waiting...\n");
+  printf("[SERVER] Waiting...\n");
   *dest = open("from",O_RDONLY);
 
   //6 gets the private fifo, remove wkp
   //printf("6\n");
   char buffer[256];
   read(*dest,buffer,sizeof(buffer));
+  printf("[SERVER] Received pipe: %s\n", buffer);
   remove("from");
 
   //7 connect to client fifo, send an init message
@@ -31,15 +31,13 @@ int server_handshake(int *dest){
   int sendMessage = open(buffer,O_WRONLY);
   char initMsg[] = "Hello client!\n";
   write(sendMessage,initMsg,sizeof(initMsg));
-  //printf("buffer: %s\n",buffer);
 
   //10 receives init message
   //printf("10\n");
   read(*dest,buffer,sizeof(buffer));
-  printf("Received: %s\n",buffer);
+  printf("[SERVER] Received: %s\n",buffer);
 
-  //*dest = getPrivate;    //sends "from" to be read from and processed
-  printf("END server_handshake\n");
+  printf("[SERVER] Handshake Complete!\n");
   return sendMessage;    //sends pipeName to be written To (the processed message)
 }
 
@@ -48,12 +46,13 @@ int client_handshake(int *dest){
   //printf("3\n");
   char pipeName[100];
   sprintf(pipeName, "%d", getpid());
+  printf("[CLIENT] Making private FIFO: %s\n", pipeName);
   mkfifo(pipeName, 0644);
 
   //4 connects to server and sends private fifo name
   //printf("4\n");
   *dest = open("from",O_WRONLY);
-  //printf("pipename: %s\n",pipeName);
+  printf("[CLIENT] Waiting...\n");
   write(*dest,pipeName,sizeof(pipeName));
 
   //5 waits for message
@@ -64,16 +63,14 @@ int client_handshake(int *dest){
   //printf("8\n");
   char buffer[256];
   read(getMessage,buffer,sizeof(buffer));
-  printf("Received: %s\n",buffer);
+  printf("[CLIENT] Received pipe: %s\n",buffer);
   remove(pipeName);
 
   //9 send message to server
   //printf("9\n");
-  //int sendMessage = open(pipeName,O_WRONLY);
   char initMsg[] = "Hello server!\n";
   write(*dest, initMsg, sizeof(initMsg));
 
-  //*dest = sendPrivate;        //sends "from" to be written to
-  printf("END client_handshake\n");
+  printf("[CLIENT] Handshake Complete!\n");
   return getMessage;    //sends pipeName to be read from (the processed message)
 }
