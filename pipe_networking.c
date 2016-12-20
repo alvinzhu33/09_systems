@@ -77,10 +77,10 @@ int client_handshake(int *dest){
 
 int server_handshake1 (char *buffer) {
 	mkfifo ("from", 0644);
-	printf ("[SERVER] Making...\n");
+	//printf ("[SERVER] Making...\n");
 
   int from_client = open ("from", O_RDONLY);
-	printf ("[SERVER] Connecting...\n");
+	//printf ("[SERVER] Connecting...\n");
 
   read (from_client, buffer, MESSAGE_BUFFER_SIZE);
 	printf ("[SERVER] Pipe received: %s\n",buffer);
@@ -95,7 +95,7 @@ int server_handshake2 (char *buffer, int from_client) {
 	write(to_client,buffer,MESSAGE_BUFFER_SIZE);
 
   read(from_client,buffer,MESSAGE_BUFFER_SIZE);
-	printf("[SERVER %d] Received: %s\n", getpid(), buffer);	return to_client;
+	printf("[SERVER %d] Received: %s\n", getpid()-1, buffer);
 
   //printf("[SERVER] Handshake Complete!\n");
   return to_client;

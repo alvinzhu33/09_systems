@@ -17,7 +17,3 @@ client: client.c
 clean:
 	rm server
 	rm client
-
-run: compile
-		./server
-		./client

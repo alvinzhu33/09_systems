@@ -35,7 +35,7 @@ void sub_server( int from_client, int to_client ) {
   char buffer[MESSAGE_BUFFER_SIZE];
   while (read( from_client, buffer, sizeof(buffer) )) {
 
-    printf("[SERVER %d] Received: %s\n", getpid(), buffer );
+    printf("[SERVER %d] Received: %s\n", getpid()-1, buffer );
     process( buffer );
     write( to_client, buffer, sizeof(buffer));
   }
